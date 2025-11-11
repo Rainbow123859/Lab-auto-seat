@@ -2,7 +2,7 @@ name: yqs Library Seat Auto Booking
 
 on:
   schedule:
-    - cron: "55 21 * * *"
+    - cron: "50 21 * * *"
   workflow_dispatch:  # 手动触发
 
 jobs:

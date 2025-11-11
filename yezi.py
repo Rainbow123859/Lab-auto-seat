@@ -24,7 +24,7 @@ CONFIG = {
       #  {"seatno": "HNND20480", "seatname": "480", "datetime": "510,1320"},
        # {"seatno": "HNND20482", "seatname": "482", "datetime": "510,1320"},
         #{"seatno": "HNND20481", "seatname": "481", "datetime": "510,1320"},
-        {"seatno": "HNND04286", "seatname": "286", "datetime": "450,470"},
+        {"seatno": "HNND04286", "seatname": "286", "datetime": "450,480"},
     ],
     "request_timeout": 5,
     "max_attempts": 10  # 每个座位的最大尝试次数

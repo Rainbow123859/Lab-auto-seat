@@ -102,7 +102,7 @@ if __name__ == "__main__":
     booker = LibraryBooker(CONFIG)
     logger.info("程序已启动，等待预约时间窗口...")
 
-    start_time = dt_time(21, 59, 0)
+    start_time = dt_time(1, 59, 0)
     end_time = dt_time(22, 8, 0)
 
     while True:

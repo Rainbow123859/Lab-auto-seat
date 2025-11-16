@@ -72,7 +72,7 @@ class LibraryBooker:
             "data_type": "seatDate",
             "seatno": seat_info["seatno"],
             "seatname": seat_info["seatname"],
-            "seatdate": "tomorrow",
+            "seatdate": "today",
             "datetime": seat_info["datetime"]
         }
         for attempt in range(CONFIG["max_attempts"]):

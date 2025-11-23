@@ -21,7 +21,7 @@ CONFIG = {
     "seats": [
         #{"seatno": "HNND10137", "seatname": "137", "datetime": "510,1320"},
         #{"seatno": "HNND10138", "seatname": "138", "datetime": "510,1320"},
-        {"seatno": "HNND04292", "seatname": "292", "datetime": "510,1320"},
+        {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
         {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
         {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
         {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},

@@ -21,9 +21,9 @@ CONFIG = {
     "seats": [
         #{"seatno": "HNND10137", "seatname": "137", "datetime": "510,1320"},
         #{"seatno": "HNND10138", "seatname": "138", "datetime": "510,1320"},
-      #  {"seatno": "HNND20480", "seatname": "480", "datetime": "510,1320"},
-       # {"seatno": "HNND20482", "seatname": "482", "datetime": "510,1320"},
-        #{"seatno": "HNND20481", "seatname": "481", "datetime": "510,1320"},
+        {"seatno": "HNND04292", "seatname": "292", "datetime": "510,1320"},
+        {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
+        {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
         {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
     ],
     "request_timeout": 5,
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         if start_time <= current_time <= end_time:
             logger.info("🕒 进入预约时间窗口，开始并发尝试...")
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
                 future_to_seat = {executor.submit(booker.book_seat, seat): seat for seat in CONFIG["seats"]}
                 for future in concurrent.futures.as_completed(future_to_seat):
                     seat = future_to_seat[future]

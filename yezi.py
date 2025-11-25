@@ -1,15 +1,13 @@
-
-import requests 
-from datetime import datetime, time as dt_time
-import time
+import requests
 import logging
+import time
+import concurrent.futures
 import sys
 import os
-import concurrent.futures
-from requests.adapters import HTTPAdapter
+from datetime import datetime, time as dt_time
 
 # ============== 配置区域（根据你的抓包数据修改）===============
-CONFIG = {
+BASE_CONFIG = {
     "cookies": {
         "ASP.NET_SessionId": "qljak1tvqi2xve4cg50gi4ev",
         "cookie_unit_name": "%e6%b9%96%e5%8d%97%e5%86%9c%e4%b8%9a%e5%a4%a7%e5%ad%a6%e5%9b%be%e4%b9%a6%e9%a6%86",
@@ -18,113 +16,100 @@ CONFIG = {
         "cookie_come_sno": "DAD084FF07CB0C55B865F4CC47A8D55BBE7AF5FCE39EA877",
         "dt_cookie_user_name_remember": "6C72C7227D4D5EEFBEEBC75F707B38B08AAABBE15EF81E84"
     },
-    "seats": [
-        #{"seatno": "HNND10137", "seatname": "137", "datetime": "510,1320"},
-        #{"seatno": "HNND10138", "seatname": "138", "datetime": "510,1320"},
-        {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
-        {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
-        {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
-        {"seatno": "HNND04292", "seatname": "292", "datetime": "600,1320"},
-    ],
-    "request_timeout": 5,
-    "max_attempts": 10  # 每个座位的最大尝试次数
+    "latitude": "28.186214447021484",
+    "longitude": "113.07843780517578",
+    "checkin_url": "http://libseat.hunau.edu.cn/apim/seat/SeatDateHandler.ashx",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (iPad; CPU OS 18_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.57(0x1800392a) NetType/WIFI Language/zh_CN",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": "http://libseat.hunau.edu.cn/mobile/html/index.html?v=20240107",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json"
+    },
+    "seat_url_template": "http://url.tolib.cn/ckindex.aspx?unitcode=hunau&sno={}"
 }
 
+# 要签到的座位号列表
+SEAT_LIST = ["HNND04492", "HNND20479", "HNND20480", "HNND20477"]
+
 # ============== 日志配置 ================
-LOG_DIR = r"D:\\course_resource\\图书馆预约自动化\\logging"
+LOG_DIR = "logging"
 os.makedirs(LOG_DIR, exist_ok=True)
 current_date = datetime.now().strftime("%Y%m%d")
-LOG_FILE = os.path.join(LOG_DIR, f"library_booking_{current_date}.log")
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-file_handler = logging.FileHandler(LOG_FILE, encoding='utf-8')
-file_handler.setFormatter(formatter)
-for handler in logger.handlers[:]:
-    logger.removeHandler(handler)
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
+LOG_FILE = os.path.join(LOG_DIR, f"checkin_{current_date}.log")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
 
-
-class LibraryBooker:
+# ============== 签到类 ================
+class AutoCheckin:
     def __init__(self, config):
-        self.base_url = "http://libseat.hunau.edu.cn/apim/seat/SeatDateHandler.ashx"
         self.session = requests.Session()
-        self._init_session(config)
+        self.config = config
+        self.session.headers.update(config["headers"])
+        self.session.cookies.update(config["cookies"])
 
-    def _init_session(self, config):
-        self.session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...",
-            "X-Requested-With": "XMLHttpRequest",
-            "Referer": "http://libseat.hunau.edu.cn/mobile/html/seat/seatquickbook.html",
-            "Content-Type": "application/x-www-form-urlencoded"
-        })
-        cookies = requests.utils.cookiejar_from_dict(config["cookies"])
-        self.session.cookies.update(cookies)
-        adapter = HTTPAdapter(pool_connections=100, pool_maxsize=100)
-        self.session.mount('http://', adapter)
-        self.session.mount('https://', adapter)
-
-    def book_seat(self, seat_info):
+    def checkin_seat(self, seat):
+        seat_url = self.config["seat_url_template"].format(seat)
         payload = {
-            "data_type": "seatDate",
-            "seatno": seat_info["seatno"],
-            "seatname": seat_info["seatname"],
-            "seatdate": "tomorrow",
-            "datetime": seat_info["datetime"]
+            "data_type": "scanSign",
+            "seatno": seat_url,
+            "latitude": self.config["latitude"],
+            "longitude": self.config["longitude"]
         }
-        for attempt in range(CONFIG["max_attempts"]):
-            try:
-                response = self.session.post(
-                    self.base_url,
-                    data=payload,
-                    timeout=CONFIG["request_timeout"]
-                )
-                logger.info("预约请求响应：%s", response.text)
-                if response.status_code == 200:
-                    json_data = response.json()
-                    if json_data.get("code") == 0:
-                        logger.info("✅ 预约成功！座位：%s，响应数据：%s", seat_info["seatname"], json_data)
-                        return True
-                    else:
-                        logger.error("❌ 预约失败：座位：%s，错误信息：%s", seat_info["seatname"],
-                                     json_data.get("msg", "未知错误"))
-                else:
-                    logger.error("预约请求失败，状态码：%d", response.status_code)
-            except Exception as e:
-                logger.error("⚠️ 请求异常：座位：%s，错误：%s", seat_info["seatname"], str(e))
-        return False
 
+        try:
+            response = self.session.post(
+                self.config["checkin_url"],
+                data=payload,
+                timeout=10
+            )
+            logging.info("签到请求响应：%s", response.text)
+            if response.status_code == 200 and "签到成功" in response.text:
+                logging.info("✅ 座位 %s 签到成功！", seat)
+                return True
+            else:
+                logging.error("❌ 座位 %s 签到失败：%s", seat, response.text)
+                return False
+        except Exception as e:
+            logging.error("⚠️ 座位 %s 签到异常：%s", seat, str(e), exc_info=True)
+            return False
 
+# ============== 主程序 ================
 if __name__ == "__main__":
-    booker = LibraryBooker(CONFIG)
-    logger.info("程序已启动，等待预约时间窗口...")
+    checkin = AutoCheckin(BASE_CONFIG)
+    logging.info("程序已启动，等待签到时间窗口...")
 
-    start_time = dt_time(21, 59, 0)
-    end_time = dt_time(22, 4, 0)
+    # 定义时间窗口（跨午夜）
+    start_time = dt_time(0, 59, 0)
+    end_time = dt_time(23, 29, 0)  # 次日的 00:40:00
 
     while True:
         now = datetime.now()
         current_time = now.time()
 
-        if current_time > end_time:
-            logger.info("时间窗口已过，程序退出")
-            sys.exit()
+        if current_time >= start_time and current_time <= end_time:
+            logging.info("🕒 进入签到时间窗口，开始并发尝试...")
 
-        if start_time <= current_time <= end_time:
-            logger.info("🕒 进入预约时间窗口，开始并发尝试...")
+            # 使用线程池并发发送签到请求
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(SEAT_LIST)) as executor:
+                futures = [executor.submit(checkin.checkin_seat, seat) for seat in SEAT_LIST]
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
-                future_to_seat = {executor.submit(booker.book_seat, seat): seat for seat in CONFIG["seats"]}
-                for future in concurrent.futures.as_completed(future_to_seat):
-                    seat = future_to_seat[future]
+                # 等待所有签到请求完成
+                for future in concurrent.futures.as_completed(futures):
                     try:
                         result = future.result()
                         if result:
-                            logger.info("🎉 成功预约座位：%s", seat["seatname"])
+                            logging.info("🎉 成功签到座位")
                     except Exception as e:
-                        logger.error("并发请求异常：%s", str(e))
+                        logging.error("并发请求异常：%s", str(e), exc_info=True)
+
+            # 如果一轮并发后没有成功，可以继续下一轮尝试
         else:
-            time.sleep(0.1)
+            # 在时间窗口前稍微等待
+            time.sleep(30)

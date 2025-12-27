@@ -23,7 +23,7 @@ CONFIG = {
         #{"seatno": "HNND10138", "seatname": "138", "datetime": "510,1320"},
       #  {"seatno": "HNND20480", "seatname": "480", "datetime": "510,1320"},
        # {"seatno": "HNND20482", "seatname": "482", "datetime": "510,1320"},
-        #{"seatno": "HNND20481", "seatname": "481", "datetime": "510,1320"},
+        {"seatno": "HNND20479", "seatname": "479", "datetime": "480,1320"},
         {"seatno": "HNND20479", "seatname": "479", "datetime": "480,1320"},
     ],
     "request_timeout": 5,

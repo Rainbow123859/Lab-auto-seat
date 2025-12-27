@@ -11,11 +11,11 @@ from requests.adapters import HTTPAdapter
 # ============== 配置区域（根据你的抓包数据修改）===============
 CONFIG = {
     "cookies": {
-        "ASP.NET_SessionId": "m3rbzvsz5f2k4qscqz44klrx",
+        "ASP.NET_SessionId": "ebngkjdilssrtjvgjcky1ea5",
         "cookie_unit_name": "%e6%b9%96%e5%8d%97%e5%86%9c%e4%b8%9a%e5%a4%a7%e5%ad%a6%e5%9b%be%e4%b9%a6%e9%a6%86",
         "cookie_come_app": "D935AE54952F16C1",
-        "cookie_come_timestamp": "1764329331",
-        "cookie_come_sno": "DAD084FF07CB0C555CC1A008B1976BBFB8A57345F237F5A5",
+        "cookie_come_timestamp": "1766836944",
+        "cookie_come_sno": "DAD084FF07CB0C55E82D2A6CDD499230AC20068B1DE18EC3",
         "dt_cookie_user_name_remember": "6C72C7227D4D5EEFBEEBC75F707B38B081A6AF1FF31DFDB2"
     },
     "seats": [

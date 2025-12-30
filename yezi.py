@@ -16,7 +16,7 @@ CONFIG = {
         "cookie_come_app": "D935AE54952F16C1",
         "cookie_come_timestamp": "1766836944",
         "cookie_come_sno": "DAD084FF07CB0C55E82D2A6CDD499230AC20068B1DE18EC3",
-        "dt_cookie_user_name_remember": "6C72C7227D4D5EEFBEEBC75F707B38B081A6AF1FF31DFDB2"
+        "dt_cookie_user_name_remember": "6C72C7227D4D5EEFBEEBC75F707B38B08AAABBE15EF81E84"
     },
     "seats": [
         #{"seatno": "HNND10137", "seatname": "137", "datetime": "510,1320"},

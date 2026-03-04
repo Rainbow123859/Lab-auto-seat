@@ -24,7 +24,7 @@ CONFIG = {
       #  {"seatno": "HNND20480", "seatname": "480", "datetime": "510,1320"},
        # {"seatno": "HNND20482", "seatname": "482", "datetime": "510,1320"},
         {"seatno": "HNND20479", "seatname": "479", "datetime": "480,1320"},
-        {"seatno": "HNND20479", "seatname": "479", "datetime": "480,1320"},
+        {"seatno": "HNND20479", "seatname": "479", "datetime": "420,480"},
     ],
     "request_timeout": 5,
     "max_attempts": 10  # 每个座位的最大尝试次数
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     booker = LibraryBooker(CONFIG)
     logger.info("程序已启动，等待预约时间窗口...")
 
-    start_time = dt_time(21, 59, 0)
+    start_time = dt_time(0, 1, 0)
     end_time = dt_time(22, 5, 0)
 
     while True:
